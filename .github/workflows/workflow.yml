@@ -1,0 +1,16 @@
+name: workflow.yml
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout
+      - name: Install conan
+        run: pip install conan
+      - name: Configure
+        run: conan install . -build=missing -of build
+      - name: Build
+        run: cmake -build build
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
