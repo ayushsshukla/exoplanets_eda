@@ -8,9 +8,16 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install conan
         run: pip install conan
-      - name: Configure
-        run: conan install . -build=missing -of build
+      - name: Configure Conan
+        run: |
+          sudo apt update
+          sudo apt install -y cmake build-essential python3-pip
+          pip install conan
+          conan profile detect --force
+          conan install . -build=missing -of build
+      - name: Configure CMake
+        run: cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=build/build/generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
       - name: Build
-        run: cmake -build build
+        run: cmake --build build
       - name: Test
         run: ctest --test-dir build --output-on-failure
