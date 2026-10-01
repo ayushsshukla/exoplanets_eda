@@ -8,14 +8,19 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install Conan
         run: |
+          sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
           sudo apt-get update
-          sudo apt-get install -y cmake build-essential python3-pip
+          sudo apt-get install -y cmake build-essential python3-pip gcc-14 g++-14
           pip install conan
-          conan profile detect --force
+      - name: Conan Profile Set
+        env:
+          CC: gcc-14
+          CXX: g++-14
+        run: conan profile detect --force
       - name: Install Conan Packages
         run: conan install conanfile.py --build=missing -s compiler.cppstd=gnu23 -s build_type=Release
       - name: Configure CMake
-        run: cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=build/Release/generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
+        run: cmake -B build -S -DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14 . -DCMAKE_TOOLCHAIN_FILE=build/Release/generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
       - name: Build
         run: cmake --build build
       - name: Test
