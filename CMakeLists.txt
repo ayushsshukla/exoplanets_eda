@@ -11,3 +11,6 @@ add_executable(eda src/main.cpp)
 target_compile_features(eda PRIVATE cxx_std_23)
 
 target_link_libraries(eda PRIVATE eda-core)
+
+enable_testing()
+add_subdirectory(tests)
