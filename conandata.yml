@@ -3,3 +3,4 @@
 
 requirements:
   - "catch2/[~3.16]"
+  - "rapidcsv/[~8.84]"
