@@ -27,18 +27,34 @@ TEST_CASE("Verify csv parsing", "[rapidcsv]")
 
 TEST_CASE("Verify table parsing", "[table]")
 {
-    std::filesystem::path temp_file = std::filesystem::temp_directory_path() / "test_exoplanets.csv";
-    {
-        std::ofstream ss(temp_file);
-        ss << "val1,val2\n" << "10,20\n" << "20,40\n";
-    }
-    auto result = table::load_csv(temp_file);
+    std::istringstream ss{
+        "# comment expected here\n"
+        "val1,val2\n"
+        "10,20\n"
+        "20,40\n"
+    };
+    auto result = table::load_csv(ss);
     REQUIRE(result.has_value());
     const auto& tab = *result;
     REQUIRE(tab.row_count() == 2);
     REQUIRE(tab.column_count() == 2);
-    REQUIRE(tab.column("val1").at(0) == 10);
-    REQUIRE(tab.column("val1").at(1) == 20);
+    REQUIRE(tab.column("val1")[0] == 10);
+    REQUIRE(tab.column("val1")[1] == 20);
+}
 
-    std::filesystem::remove(temp_file);
+TEST_CASE("Verify comments are skipped", "[table]")
+{
+    std::istringstream ss{
+        "# comment expected here\n"
+        "val1,val2\n"
+        "10,20\n"
+        "20,40\n"
+    };
+    auto result = table::load_csv(ss);
+    REQUIRE(result.has_value());
+    const auto& tab = *result;
+    REQUIRE(tab.row_count() == 2);
+    REQUIRE(tab.column_count() == 2);
+    REQUIRE(tab.column("val1")[0] == 10);
+    REQUIRE(tab.column("val1")[1] == 20);
 }

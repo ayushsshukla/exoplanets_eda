@@ -10,14 +10,23 @@
 #include <unordered_map>
 #include <vector>
 #include <optional>
+#include <istream>
+#include <span>
 
 
 class table
 {
 public:
     table() = default;
-    [[nodiscard]] static std::optional<table> load_csv(const std::filesystem::path& file_name);
-    [[nodiscard]] const std::vector<double>& column(std::string_view name) const;
+    [[nodiscard]] static std::optional<table> load_csv(std::istream& in);
+    [[nodiscard]] static std::optional<table> load_csv_file(const std::filesystem::path& pathName);
+
+    [[nodiscard]] const std::vector<std::string>& column_names() const noexcept
+    {
+        return names_;
+    };
+
+    [[nodiscard]] std::span<const double> column(std::string_view name) const;
     [[nodiscard]] size_t column_count() const;
     [[nodiscard]] size_t row_count() const;
 
@@ -31,7 +40,10 @@ private:
             return std::hash<std::string_view>{}(name);
         };
     };
+
+    [[nodiscard]] static double parse_cell(std::string_view s);
     std::unordered_map<std::string, std::vector<double>, stringhash, std::equal_to<>> columns_;
+    std::vector<std::string> names_;
     size_t row_count_{};
 };
 
